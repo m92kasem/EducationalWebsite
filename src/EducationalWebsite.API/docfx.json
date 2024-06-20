@@ -1,0 +1,26 @@
+{
+    "metadata": [
+      {
+        "src": [
+          {
+            "files": ["**/*.csproj"],
+            "cwd": "../"
+          }
+        ],
+        "dest": "api"
+      }
+    ],
+    "build": {
+      "content": [
+        {
+          "files": ["**/*.md", "**/*.yml"]
+        }
+      ],
+      "dest": "_site",
+      "globalMetadata": {
+        "_enableSearch": true
+      },
+      "template": ["default"]
+    }
+  }
+  
