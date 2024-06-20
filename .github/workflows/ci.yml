@@ -29,9 +29,6 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Set up environment
-        run: echo "Setting up for ${{ matrix.environment }} environment"
-
       - name: Install dotnet-outdated tool
         run: dotnet tool install --global dotnet-outdated-tool
 
@@ -42,7 +39,7 @@ jobs:
         run: dotnet restore ./EducationalWebsiteSolution.sln
 
       - name: Check for outdated dependencies
-        run: dotnet outdated --pre
+        run: dotnet outdated --pre-release Always  # Use the correct option value
 
       - name: Lint the code
         run: dotnet tool install -g dotnet-format
