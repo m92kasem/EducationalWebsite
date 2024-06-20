@@ -22,7 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # Ensure full git history is available for merging
+          fetch-depth: 0
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
@@ -32,29 +32,17 @@ jobs:
       - name: Set up environment
         run: echo "Setting up for ${{ matrix.environment }} environment"
 
-      - name: Fetch latest changes from main
-        run: git fetch origin main
+      - name: Install dotnet-outdated tool
+        run: dotnet tool install --global dotnet-outdated-tool
 
-      - name: Merge main into current branch
-        run: git merge origin/main
-        continue-on-error: true # Allow workflow to continue even if conflicts are detected
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+      - name: Add .NET tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: dotnet restore ./EducationalWebsiteSolution.sln
 
       - name: Check for outdated dependencies
         run: dotnet outdated --pre
-
-      - name: Scan for outdated dependencies
-        run: dotnet outdated --include-prerelease
 
       - name: Lint the code
         run: dotnet tool install -g dotnet-format
