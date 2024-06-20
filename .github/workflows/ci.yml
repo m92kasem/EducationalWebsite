@@ -78,18 +78,13 @@ jobs:
       - name: Install DocFX
         run: dotnet tool install --global docfx
 
+      - name: List directory contents for debugging
+        run: ls -R src/EducationalWebsite.API
+
       - name: Generate documentation
         run: |
           cd src/EducationalWebsite.API  # Navigate to the directory with docfx.json
           docfx docfx.json  # Run docfx with the configuration file
-
-      - name: Run security scan
-        uses: github/codeql-action/init@v2
-        with:
-          languages: csharp
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
 
       - name: Create release
         uses: actions/create-release@v1
@@ -108,3 +103,28 @@ jobs:
           payload: '{"text":"Build failed for ${{ github.repository }} on ${{ github.ref }}."}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  codeql-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: csharp
+
+      - name: Build the project
+        run: dotnet build --configuration Release ./EducationalWebsiteSolution.sln
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
