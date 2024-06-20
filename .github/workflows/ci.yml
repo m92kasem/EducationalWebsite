@@ -75,10 +75,14 @@ jobs:
           fi
         continue-on-error: false
 
+      - name: Install DocFX
+        run: dotnet tool install --global docfx
+
       - name: Generate documentation
         run: |
           dotnet tool install --global docfx
-          docfx ./src/EducationalWebsite/docfx.json
+          docfx ./src/EducationalWebsite.API
+          docfx docfx.json
 
       - name: Run security scan
         uses: github/codeql-action/init@v2
