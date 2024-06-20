@@ -1,3 +1,19 @@
 # Ignore .NET build artifacts
 **/obj/
 **/bin/
+
+# Ignore user-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore other common build artifacts
+*.log
+*.vspscc
+.vscode/
+
+# Ignore coverage reports
+coverage/
+*.coveragereport
