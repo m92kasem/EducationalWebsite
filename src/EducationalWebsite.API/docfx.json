@@ -4,7 +4,7 @@
         "src": [
           {
             "files": ["**/*.csproj"],
-            "cwd": "../"
+            "cwd": "../.."  
           }
         ],
         "dest": "api"
@@ -13,7 +13,18 @@
     "build": {
       "content": [
         {
-          "files": ["**/*.md", "**/*.yml"]
+          "files": [
+            "**/*.md",
+            "**/*.yml",
+            "../../docs/**/*.md" 
+          ]
+        }
+      ],
+      "resource": [
+        {
+          "files": [
+            "images/**"
+          ]
         }
       ],
       "dest": "_site",
