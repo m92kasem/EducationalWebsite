@@ -51,7 +51,7 @@ jobs:
         run: dotnet restore ./EducationalWebsiteSolution.sln
 
       - name: Check for outdated dependencies
-        run: dotnet tool install --global dotnet-outdated-tool
+        run: dotnet outdated --pre
 
       - name: Scan for outdated dependencies
         run: dotnet outdated --include-prerelease
