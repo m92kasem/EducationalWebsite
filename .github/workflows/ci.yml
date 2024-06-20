@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
-      - "refs/tags/*"
+      - 'refs/tags/*'
   pull_request:
     branches:
       - main
 
 permissions:
   contents: write
+  security-events: write  # Ensure CodeQL has the necessary permissions
 
 jobs:
   build-and-test:
@@ -87,8 +88,8 @@ jobs:
 
       - name: Generate documentation
         run: |
-          cd src/EducationalWebsite.API  # Navigate to the directory with docfx.json
-          docfx docfx.json  # Run docfx with the configuration file
+          cd src/EducationalWebsite.API
+          docfx docfx.json
 
       - name: Extract tag name
         id: extract_tag
@@ -128,7 +129,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0"
+          dotnet-version: '8.0'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
@@ -140,3 +141,5 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure the correct token is used
