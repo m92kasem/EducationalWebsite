@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - 'refs/tags/*'
+      - "refs/tags/*"
   pull_request:
     branches:
       - main
 
 permissions:
   contents: write
-  security-events: write  
+  security-events: write
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -57,12 +57,6 @@ jobs:
       - name: Run tests with coverage
         run: dotnet test ./EducationalWebsiteSolution.sln --collect:"XPlat Code Coverage"
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: code-coverage
-          path: "**/coverage.cobertura.xml"
-
       - name: Publish test results
         if: always()
         uses: actions/upload-artifact@v2
@@ -90,32 +84,6 @@ jobs:
           cd src/EducationalWebsite.API  # Navigate to the directory with docfx.json
           docfx docfx.json  # Run docfx with the configuration file
 
-      - name: Extract tag name
-        id: extract_tag
-        run: |
-          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV  # Use environment file instead of set-output
-        env:
-          GITHUB_REF: ${{ github.ref }}
-
-      - name: Create release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.TAG_NAME }}  # Access the output via environment variable
-          release_name: Release ${{ env.TAG_NAME }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Notify on failure
-        if: failure()
-        uses: slackapi/slack-github-action@v1.19.0
-        with:
-          payload: '{"text":"Build failed for ${{ github.repository }} on ${{ github.ref }}."}'
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   codeql-analysis:
     runs-on: ubuntu-latest
 
@@ -128,7 +96,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0'
+          dotnet-version: "8.0"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
