@@ -1,0 +1,121 @@
+name: CI for Educational Website
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet-version: [6.0, 7.0, 8.0]
+        environment: [development, staging, production]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Ensure full git history is available for merging
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Set up environment
+        run: echo "Setting up for ${{ matrix.environment }} environment"
+
+      - name: Fetch latest changes from main
+        run: git fetch origin main
+
+      - name: Merge main into current branch
+        run: git merge origin/main
+        continue-on-error: true # Allow workflow to continue even if conflicts are detected
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Install dependencies
+        run: dotnet restore ./src/EducationalWebsite.sln
+
+      - name: Check for outdated dependencies
+        run: dotnet tool install --global dotnet-outdated-tool
+
+      - name: Scan for outdated dependencies
+        run: dotnet outdated --include-prerelease
+
+      - name: Lint the code
+        run: dotnet tool install -g dotnet-format
+      - name: Run code analysis
+        run: dotnet format --check
+
+      - name: Build the project
+        run: dotnet build --configuration Release --no-restore ./src/EducationalWebsite.sln
+
+      - name: Run tests with coverage
+        run: dotnet test ./src/EducationalWebsite.sln --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage
+          path: "**/coverage.cobertura.xml"
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+
+      - name: Check for merge conflicts
+        run: |
+          git diff --check
+          if [ $? -ne 0 ]; then
+            echo "Merge conflicts detected."
+            exit 1
+          fi
+        continue-on-error: false
+
+      - name: Generate documentation
+        run: |
+          dotnet tool install --global docfx
+          docfx ./src/EducationalWebsite/docfx.json
+
+      - name: Run security scan
+        uses: github/codeql-action/init@v2
+        with:
+          languages: csharp
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: Create release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          payload: '{"text":"Build failed for ${{ github.repository }} on ${{ github.ref }}."}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
