@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: [6.0, 7.0, 8.0]
+        dotnet-version: [8.0]
         environment: [development, staging, production]
 
     steps:
@@ -48,7 +48,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Install dependencies
-        run: dotnet restore ./src/EducationalWebsite.sln
+        run: dotnet restore ./EducationalWebsiteSolution.sln
 
       - name: Check for outdated dependencies
         run: dotnet tool install --global dotnet-outdated-tool
@@ -58,14 +58,15 @@ jobs:
 
       - name: Lint the code
         run: dotnet tool install -g dotnet-format
+
       - name: Run code analysis
         run: dotnet format --check
 
       - name: Build the project
-        run: dotnet build --configuration Release --no-restore ./src/EducationalWebsite.sln
+        run: dotnet build --configuration Release --no-restore ./EducationalWebsiteSolution.sln
 
       - name: Run tests with coverage
-        run: dotnet test ./src/EducationalWebsite.sln --collect:"XPlat Code Coverage"
+        run: dotnet test ./EducationalWebsiteSolution.sln --collect:"XPlat Code Coverage"
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v2
