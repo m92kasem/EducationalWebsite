@@ -1,0 +1,13 @@
+### YamlMime:TableOfContent
+items:
+- uid: EducationalWebsite.API
+  name: EducationalWebsite.API
+  items:
+  - uid: EducationalWebsite.API.WeatherForecast
+    name: WeatherForecast
+- uid: EducationalWebsite.API.Controllers
+  name: EducationalWebsite.API.Controllers
+  items:
+  - uid: EducationalWebsite.API.Controllers.WeatherForecastController
+    name: WeatherForecastController
+memberLayout: SamePage

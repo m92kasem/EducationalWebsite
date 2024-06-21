@@ -1,0 +1,12 @@
+{
+  "EducationalWebsite.API": "EducationalWebsite.API.yml",
+  "EducationalWebsite.API.Controllers": "EducationalWebsite.API.Controllers.yml",
+  "EducationalWebsite.API.Controllers.WeatherForecastController": "EducationalWebsite.API.Controllers.WeatherForecastController.yml",
+  "EducationalWebsite.API.Controllers.WeatherForecastController.#ctor(Microsoft.Extensions.Logging.ILogger{EducationalWebsite.API.Controllers.WeatherForecastController})": "EducationalWebsite.API.Controllers.WeatherForecastController.yml",
+  "EducationalWebsite.API.Controllers.WeatherForecastController.Get": "EducationalWebsite.API.Controllers.WeatherForecastController.yml",
+  "EducationalWebsite.API.WeatherForecast": "EducationalWebsite.API.WeatherForecast.yml",
+  "EducationalWebsite.API.WeatherForecast.Date": "EducationalWebsite.API.WeatherForecast.yml",
+  "EducationalWebsite.API.WeatherForecast.Summary": "EducationalWebsite.API.WeatherForecast.yml",
+  "EducationalWebsite.API.WeatherForecast.TemperatureC": "EducationalWebsite.API.WeatherForecast.yml",
+  "EducationalWebsite.API.WeatherForecast.TemperatureF": "EducationalWebsite.API.WeatherForecast.yml"
+}
