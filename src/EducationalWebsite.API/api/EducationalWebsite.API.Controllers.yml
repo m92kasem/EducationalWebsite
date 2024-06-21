@@ -1,0 +1,23 @@
+### YamlMime:ManagedReference
+items:
+- uid: EducationalWebsite.API.Controllers
+  commentId: N:EducationalWebsite.API.Controllers
+  id: EducationalWebsite.API.Controllers
+  children:
+  - EducationalWebsite.API.Controllers.WeatherForecastController
+  langs:
+  - csharp
+  - vb
+  name: EducationalWebsite.API.Controllers
+  nameWithType: EducationalWebsite.API.Controllers
+  fullName: EducationalWebsite.API.Controllers
+  type: Namespace
+  assemblies:
+  - EducationalWebsite.API
+references:
+- uid: EducationalWebsite.API.Controllers.WeatherForecastController
+  commentId: T:EducationalWebsite.API.Controllers.WeatherForecastController
+  href: EducationalWebsite.API.Controllers.WeatherForecastController.html
+  name: WeatherForecastController
+  nameWithType: WeatherForecastController
+  fullName: EducationalWebsite.API.Controllers.WeatherForecastController

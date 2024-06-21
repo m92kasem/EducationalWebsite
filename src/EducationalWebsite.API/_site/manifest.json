@@ -1,0 +1,72 @@
+{
+  "source_base_path": "C:/Users/Ms-ka/Desktop/EducationalWebsiteSolution/src/EducationalWebsite.API",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/EducationalWebsite.API.Controllers.WeatherForecastController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/EducationalWebsite.API.Controllers.WeatherForecastController.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/EducationalWebsite.API.Controllers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/EducationalWebsite.API.Controllers.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/EducationalWebsite.API.WeatherForecast.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/EducationalWebsite.API.WeatherForecast.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/EducationalWebsite.API.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/EducationalWebsite.API.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html"
+        },
+        ".json": {
+          "relative_path": "api/toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
