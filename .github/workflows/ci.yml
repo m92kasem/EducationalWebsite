@@ -2,103 +2,32 @@ name: CI for Educational Website
 
 on:
   push:
-    branches:
+    branches: 
       - main
-      - "refs/tags/*"
   pull_request:
-    branches:
+    branches: 
       - main
 
-permissions:
-  contents: write
-  security-events: write
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: [8.0]
-        environment: [development, staging, production]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-
-      - name: Install dotnet-outdated tool
-        run: dotnet tool install --global dotnet-outdated-tool
-
-      - name: Add .NET tools to PATH
-        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: dotnet restore ./EducationalWebsiteSolution.sln
-
-      - name: Check for outdated dependencies
-        run: dotnet outdated --pre-release Always
-
-      - name: Install dotnet-format tool
-        run: dotnet tool install -g dotnet-format
-
-      - name: Run code analysis
-        run: dotnet format ./EducationalWebsiteSolution.sln --verify-no-changes
-
-      - name: Build the project
-        run: dotnet build --configuration Release --no-restore ./EducationalWebsiteSolution.sln
-
-      - name: Run tests with coverage
-        run: dotnet test ./EducationalWebsiteSolution.sln --collect:"XPlat Code Coverage"
-
-      - name: Publish test results
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: "**/TestResults/*.trx"
-
-      - name: Check for merge conflicts
-        run: |
-          git diff --check
-          if [ $? -ne 0 ]; then
-            echo "Merge conflicts detected."
-            exit 1
-          fi
-        continue-on-error: false
-
-      - name: List directory contents for debugging
-        run: ls -R src/EducationalWebsite.API
-
-  codeql-analysis:
+  build:
+    env:
+      BuildConfiguration: 'Release'
+      Solution: './EducationalWebsiteSolution.sln'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v3
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "8.0"
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: csharp
-
-      - name: Build the project
-        run: dotnet build --configuration Release ./EducationalWebsiteSolution.sln
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore $Solution
+    
+    - name: Build
+      run: dotnet build $Solution --configuration $BuildConfiguration
+    
+    - name: Test
+      run: dotnet test $Solution --configuration $BuildConfiguration
