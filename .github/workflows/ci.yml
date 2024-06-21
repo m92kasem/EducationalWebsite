@@ -73,16 +73,8 @@ jobs:
           fi
         continue-on-error: false
 
-      - name: Install DocFX
-        run: dotnet tool install --global docfx
-
       - name: List directory contents for debugging
         run: ls -R src/EducationalWebsite.API
-
-      - name: Generate documentation
-        run: |
-          cd src/EducationalWebsite.API  # Navigate to the directory with docfx.json
-          docfx docfx.json  # Run docfx with the configuration file
 
   codeql-analysis:
     runs-on: ubuntu-latest
