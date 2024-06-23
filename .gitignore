@@ -8,6 +8,9 @@
 *.suo
 *.userosscache
 *.sln.docstates
+# Ignore sensitive environment-specific settings
+appsettings.Development.json
+appsettings.json
 
 # Ignore other common build artifacts
 *.log
@@ -17,3 +20,5 @@
 # Ignore coverage reports
 coverage/
 *.coveragereport
+
+.fake
