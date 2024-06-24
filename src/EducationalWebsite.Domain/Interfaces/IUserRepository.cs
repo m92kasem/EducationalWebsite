@@ -8,11 +8,11 @@ namespace EducationalWebsite.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User> GetByIdAsync(Guid id);
+        Task<User> GetByIdAsync(Guid Id);
         Task<IEnumerable<User>> GetAllAsync();
         Task AddAsync(User user);
-        Task UpdateAsync(User user);
-        Task DeleteAsync(Guid id);
+        Task UpdateAsync(Guid Id, User user);
+        Task DeleteAsync(Guid Id);
         Task<User> GetByUsernameAsync(string username);
         Task<User> AuthenticateAsync(string Email, string password);
     }

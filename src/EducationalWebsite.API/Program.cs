@@ -1,3 +1,4 @@
+using EducationalWebsite.Infrastructure.MongoDB;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -6,6 +7,7 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<MongoDbConnection>(builder.Configuration.GetSection("MongoDbConnection"));
 
 builder.Services.AddControllers();
 

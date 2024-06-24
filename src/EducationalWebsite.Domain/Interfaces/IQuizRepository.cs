@@ -8,10 +8,10 @@ namespace EducationalWebsite.Domain.Interfaces
 {
     public interface IQuizRepository
     {
-        Task<Quiz> GetByIdAsync(Guid id);
+        Task<Quiz> GetByIdAsync(Guid Id);
         Task<IEnumerable<Quiz>> GetAllAsync();
         Task AddAsync(Quiz quiz);
-        Task UpdateAsync(Quiz quiz);
+        Task UpdateAsync(Guid Id, Quiz quiz);
         Task DeleteAsync(Guid id);
     }
 }
