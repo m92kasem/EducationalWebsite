@@ -24,10 +24,10 @@ jobs:
         dotnet-version: 8.0.x
     
     - name: Restore dependencies
-      run: dotnet restore $Solution
+      run: dotnet restore ${{ env.Solution }}
     
     - name: Build
-      run: dotnet build $Solution --configuration $BuildConfiguration
+      run: dotnet build ${{ env.Solution }} --configuration ${{ env.BuildConfiguration }}
     
     - name: Test
-      run: dotnet test $Solution --configuration $BuildConfiguration
+      run: dotnet test ${{ env.Solution }} --configuration ${{ env.BuildConfiguration }} --logger "trx;LogFileName=test_results.trx"

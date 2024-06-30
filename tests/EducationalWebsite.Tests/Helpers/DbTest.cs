@@ -22,7 +22,10 @@ namespace EducationalWebsite.Tests.Helpers
         {
             _output = output;
             _mockLogger = new Mock<ILogger<MongoDatabaseManager>>();
-            _runner = MongoDbRunner.Start();
+            var binariesDirectory = "/tmp/mongo_binaries"; // Ensure this directory is writable
+            System.IO.Directory.CreateDirectory(binariesDirectory); // Create the directory if it doesn't exist
+
+            _runner = MongoDbRunner.Start(binariesSearchDirectory: binariesDirectory);
 
             _mongoDbConnection = new MongoDbConnection
             {
