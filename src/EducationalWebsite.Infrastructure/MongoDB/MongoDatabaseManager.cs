@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Events;
 
 namespace EducationalWebsite.Infrastructure.MongoDB
 {
@@ -14,33 +13,41 @@ namespace EducationalWebsite.Infrastructure.MongoDB
         private readonly IMongoDatabase _database;
         private readonly ILogger<MongoDatabaseManager> _logger;
 
-        public MongoDatabaseManager(MongoDbConnection connection, ILogger<MongoDatabaseManager> logger)
+        public MongoDatabaseManager(IOptions<MongoDbConnection> connection, ILogger<MongoDatabaseManager> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            if (connection == null)
+            if (connection?.Value == null)
             {
                 _logger.LogError("MongoDbConnection is null");
                 throw new ArgumentNullException(nameof(connection));
             }
-            var connectionString = connection.ConnectionString;
-            var databaseName = connection.DatabaseName;
-            ValidateConfiguration(connectionString, databaseName);
+
+            ValidateConfiguration(connection.Value.ConnectionString!, connection.Value.DatabaseName!);
+
+            // Create a MongoClientSettings object from the connection string
+            var clientSettings = MongoClientSettings.FromConnectionString(connection.Value.ConnectionString);
+            // Configure logging for MongoDB events
+            ConfigureLogging(clientSettings);
+
+            // Enable TLS 1.3
+            clientSettings.SslSettings = new SslSettings { EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls13 };
+
 
             try
             {
-                _client = new MongoClient(connectionString);
-                _database = _client.GetDatabase(databaseName);
+                _client = new MongoClient(clientSettings);
+                _database = _client.GetDatabase(connection.Value.DatabaseName);
                 _logger.LogInformation("MongoDB connection established.");
             }
             catch (MongoConfigurationException ex)
             {
-                _logger.LogError(ex, "Error establishing MongoDB connection- client.");
+                _logger.LogError(ex, "Error establishing MongoDB connection - client.");
                 throw;
             }
             catch (MongoConnectionException ex)
             {
-                _logger.LogError(ex, "Error establishing MongoDB connection- Failed to connect MDB.");
+                _logger.LogError(ex, "Error establishing MongoDB connection - Failed to connect MDB.");
                 throw;
             }
             catch (Exception ex)
@@ -94,5 +101,20 @@ namespace EducationalWebsite.Infrastructure.MongoDB
                 throw new ArgumentException("Invalid MongoDB connection string format.", nameof(connectionString));
             }
         }
+
+        // ConfigureLogging method to configure logging for MongoDB events
+        private void ConfigureLogging(MongoClientSettings clientSettings)
+        {
+            clientSettings.ClusterConfigurator = cb =>
+            {
+                cb.Subscribe<CommandStartedEvent>(e =>
+                    _logger.LogInformation($"Command {e.CommandName} - {e.Command.ToJson()} started."));
+                cb.Subscribe<CommandSucceededEvent>(e =>
+                    _logger.LogInformation($"Command {e.CommandName} - {e.Reply.ToJson()} succeeded."));
+                cb.Subscribe<CommandFailedEvent>(e =>
+                    _logger.LogError(e.Failure, $"Command {e.CommandName} failed."));
+            };
+        }
+        
     }
 }
