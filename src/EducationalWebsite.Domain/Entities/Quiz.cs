@@ -13,12 +13,12 @@ namespace EducationalWebsite.Domain.Entities
     {
         [Required(ErrorMessage = "The title is required.")]
         [StringLength(100, ErrorMessage = "The title cannot exceed 100 characters.")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "At least one question is required.")]
         public ICollection<Question> Questions { get; set; } = new List<Question>();
 
         [BsonIgnore]
-        public TestQ TestQ { get; set; }
+        public TestQ TestQ { get; set; } = null!;
     }
 }

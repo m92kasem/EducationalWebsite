@@ -10,16 +10,17 @@ namespace EducationalWebsite.Domain.Entities
 {
     public class Result : BaseEntity
     {
-    [Required]
+    [Required(ErrorMessage = "The TestQId is required.")]
     public Guid TestQId { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "The UserId is required.")]
     public Guid UserId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The Score is required.")]
+    [Range(0, 100, ErrorMessage = "The Score must be between 0 and 100.")]
     public double Score { get; set; }
 
-    public string? Comments { get; set; } 
+    public string? Comments { get; set; } = string.Empty;
         
     }
 }

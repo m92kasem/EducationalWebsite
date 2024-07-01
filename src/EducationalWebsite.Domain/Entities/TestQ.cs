@@ -14,8 +14,8 @@ namespace EducationalWebsite.Domain.Entities
     
     {
         [Required(ErrorMessage = "The title is required.")]
-        [StringLength(100, ErrorMessage = "The title cannot exceed 100 characters.")]
-        public string Title { get; set; }
+        [StringLength(200, ErrorMessage = "The title cannot exceed 200 characters.")]
+        public string Title { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "At least one quiz is required.")]
         public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
@@ -25,6 +25,6 @@ namespace EducationalWebsite.Domain.Entities
         public string? Result { get; set; }
 
         [BsonIgnore]
-        public User User { get; set; }
+        public User User { get; set; } = null!;
     }
 }
