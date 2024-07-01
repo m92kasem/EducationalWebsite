@@ -36,7 +36,7 @@ namespace EducationalWebsite.Tests.Helpers
         public void Constructor_ValidConnection_InitializesCorrectly()
         {
             // Act
-            var manager = new MongoDatabaseManager(_mongoDbConnection.Value, _mockLogger.Object);
+            var manager = new MongoDatabaseManager(_mongoDbConnection, _mockLogger.Object);
 
             // Assert
             Assert.NotNull(manager);
@@ -55,7 +55,7 @@ namespace EducationalWebsite.Tests.Helpers
         public void Constructor_NullLogger_ThrowsArgumentNullException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new MongoDatabaseManager(_mongoDbConnection.Value, null));
+            Assert.Throws<ArgumentNullException>(() => new MongoDatabaseManager(_mongoDbConnection, null));
             _output.WriteLine("ArgumentNullException thrown for null logger.");
         }
 
@@ -63,7 +63,7 @@ namespace EducationalWebsite.Tests.Helpers
         public void GetCollection_ValidType_ReturnsCollection()
         {
             // Arrange
-            var manager = new MongoDatabaseManager(_mongoDbConnection.Value, _mockLogger.Object);
+            var manager = new MongoDatabaseManager(_mongoDbConnection, _mockLogger.Object);
 
             // Act
             var collection = manager.GetCollection<TestDocument>();
