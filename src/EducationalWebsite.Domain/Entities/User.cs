@@ -42,7 +42,8 @@ namespace EducationalWebsite.Domain.Entities
         [RegularExpression(@"^\+?[0-9\s\-()]*$", ErrorMessage = "Phone number must contain digits and can include spaces, dashes, or parentheses.")]
         public string PhoneNumber { get; set; } = string.Empty;
         
-        public bool IsAdmin { get; set; }
+        [Required(ErrorMessage = "Role is required.")]
+        public UserRole Role { get; set; }
         
         public bool IsDeleted { get; set; }
 
@@ -59,6 +60,12 @@ namespace EducationalWebsite.Domain.Entities
         {
             Male,
             Female
+        }
+
+        public enum UserRole
+        {
+            Admin,
+            Customer
         }
 
     }
