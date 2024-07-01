@@ -2,12 +2,31 @@
 **/obj/
 **/bin/
 
+# Ignore DLL, EXE, and PDB files
+*.dll
+*.exe
+*.pdb
+
+# Ignore configuration files
+*.config
+*.json
+
+# Ignore directories containing build outputs
+src/EducationalWebsite.API/bin/
+src/EducationalWebsite.Application/bin/
+src/EducationalWebsite.Domain/bin/
+src/EducationalWebsite.Infrastructure/bin/
+tests/EducationalWebsite.Tests/bin/
+
 # Ignore user-specific files
 *.user
 *.rsuser
 *.suo
 *.userosscache
 *.sln.docstates
+# Ignore sensitive environment-specific settings
+appsettings.Development.json
+appsettings.json
 
 # Ignore other common build artifacts
 *.log
@@ -17,3 +36,5 @@
 # Ignore coverage reports
 coverage/
 *.coveragereport
+
+.fake
