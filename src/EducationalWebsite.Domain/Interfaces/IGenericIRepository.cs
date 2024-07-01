@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace EducationalWebsite.Domain.Interfaces
 {
-    public interface GenericIRepository<T> where T : class
+    public interface IGenericIRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> GetByIdAsync(Guid id);
