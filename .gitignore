@@ -18,6 +18,12 @@ src/EducationalWebsite.Domain/bin/
 src/EducationalWebsite.Infrastructure/bin/
 tests/EducationalWebsite.Tests/bin/
 
+# Ignore build artifacts
+src/**/bin/
+src/**/obj/
+tests/**/bin/
+tests/**/obj/
+
 # Ignore user-specific files
 *.user
 *.rsuser
