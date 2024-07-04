@@ -1,4 +1,5 @@
 using System;
+using EducationalWebsite.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -79,6 +80,8 @@ namespace EducationalWebsite.Infrastructure.MongoDB
                 throw;
             }
         }
+
+        public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
 
         // ValidateConfiguration method to validate the connection string and database name
         private void ValidateConfiguration(string connectionString, string databaseName)
