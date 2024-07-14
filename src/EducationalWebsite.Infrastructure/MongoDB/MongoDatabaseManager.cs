@@ -1,4 +1,5 @@
 using System;
+using EducationalWebsite.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -115,6 +116,7 @@ namespace EducationalWebsite.Infrastructure.MongoDB
                     _logger.LogError(e.Failure, $"Command {e.CommandName} failed."));
             };
         }
-        
+        public IMongoCollection<User> Users => _database.GetCollection<User>("User");
+
     }
 }

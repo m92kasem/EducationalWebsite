@@ -38,6 +38,7 @@ appsettings.json
 *.log
 *.vspscc
 .vscode/
+.vs/
 
 # Ignore coverage reports
 coverage/

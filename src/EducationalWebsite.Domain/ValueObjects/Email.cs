@@ -10,7 +10,7 @@ namespace EducationalWebsite.Domain.ValueObjects
     {
         public string Value { get; }
 
-        private Email(string value)
+        public Email(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

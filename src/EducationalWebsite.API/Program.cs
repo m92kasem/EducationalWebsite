@@ -1,8 +1,18 @@
+using EducationalWebsite.Application.Repositories;
+using EducationalWebsite.Application.Services;
+using EducationalWebsite.Domain.Interfaces;
 using EducationalWebsite.Infrastructure.MongoDB;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MediatR;
+
 using Microsoft.OpenApi.Models;
+using EducationalWebsite.Application.Handlers;
+using FluentValidation;
+using EducationalWebsite.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,15 +21,16 @@ builder.Services.Configure<MongoDbConnection>(builder.Configuration.GetSection("
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            // Configuration parameters for JWT
-        };
-    });
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddSingleton<MongoDatabaseManager>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateUserCommandHandler).Assembly));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

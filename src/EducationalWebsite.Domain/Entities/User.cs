@@ -73,7 +73,7 @@ namespace EducationalWebsite.Domain.Entities
             Customer
         }
 
-        private SecureString _password;
+        private SecureString? _password;
 
 
     }

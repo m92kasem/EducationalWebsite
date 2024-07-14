@@ -11,9 +11,9 @@ namespace EducationalWebsite.Domain.Interfaces
         Task<User> GetByIdAsync(Guid Id);
         Task<IEnumerable<User>> GetAllAsync();
         Task AddAsync(User user);
-        Task UpdateAsync(Guid Id, User user);
+        Task UpdateUserAsync(User user);
         Task DeleteAsync(Guid Id);
-        Task<User> GetByUsernameAsync(string username);
+        Task<User> GetUserByEmailAsync(string email);
         Task<User> AuthenticateAsync(string Email, string password);
     }
 }
