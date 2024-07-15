@@ -1,8 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\EducationalWebsite.Domain\EducationalWebsite.Domain.csproj" />
-  </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,9 +9,11 @@
 
   <ItemGroup>
 		<ProjectReference Include="..\EducationalWebsite.Domain\EducationalWebsite.Domain.csproj" />
+		<ProjectReference Include="..\EducationalWebsite.Application\EducationalWebsite.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
   </ItemGroup>
 

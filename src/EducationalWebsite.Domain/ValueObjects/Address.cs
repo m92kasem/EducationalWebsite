@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -13,7 +14,8 @@ namespace EducationalWebsite.Domain.ValueObjects
         public string State { get; }
         public string ZipCode { get; }
 
-        private Address(string street, string city, string state, string zipCode)
+        [JsonConstructor]
+        public Address(string street, string city, string state, string zipCode)
         {
             if (string.IsNullOrWhiteSpace(street) || street.Length > 40)
             {
