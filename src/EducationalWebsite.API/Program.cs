@@ -1,8 +1,11 @@
 using System.Text;
 using EducationalWebsite.Application;
+using EducationalWebsite.Application.Services;
 using EducationalWebsite.Domain.Entities;
+using EducationalWebsite.Domain.Interfaces.Users;
 using EducationalWebsite.Infrastructure.Jwt;
 using EducationalWebsite.Infrastructure.MongoDB;
+using EducationalWebsite.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,12 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MongoDbConnection>(builder.Configuration.GetSection("MongoDbConnection"));
 
 // Configure MongoDB Identity
-builder.Services.AddIdentity<User, ApplicationRole>()
-    .AddMongoDbStores<User, ApplicationRole, Guid>(
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>(
         builder.Configuration["MongoDbConnection:ConnectionString"], 
         builder.Configuration["MongoDbConnection:DatabaseName"])
     .AddDefaultTokenProviders();
-
+builder.Services.AddSingleton<MongoDatabaseManager>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
 builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 // Add JWT authentication
 builder.Services.AddAuthentication(options =>
@@ -54,10 +61,29 @@ builder.Services.AddFluentValidationAutoValidation();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "EducationalWebsite API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter JWT with Bearer into field",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+    {
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        },
+        new string[] { }
+    }});
 });
 
 
@@ -82,8 +108,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-    await CreateRolesAndUsers(roleManager, userManager);
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    await CreateRolesAndUsers(roleManager, userManager, builder.Configuration);
 }
 
 app.Run();
@@ -95,7 +121,7 @@ app.Run();
 
 
 
-static async Task CreateRolesAndUsers(RoleManager<ApplicationRole> roleManager, UserManager<User> userManager)
+static async Task CreateRolesAndUsers(RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
 {
     string[] roleNames = { "ADMIN", "USER" };
     IdentityResult roleResult;
@@ -110,16 +136,16 @@ static async Task CreateRolesAndUsers(RoleManager<ApplicationRole> roleManager, 
     }
 
     // Create default Admin user
-    var adminUser = new User
+    var adminUser = new ApplicationUser
     {
-        UserName = "admin@domain.com",
-        Email = "admin@domain.com",
+        UserName = "adminUser",
+        Email = configuration["DefaultAdmin:Email"],
         FirstName = "Admin",
         LastName = "User",
         EmailConfirmed = true
     };
 
-    var adminPassword = "Admin@123"; // Use a strong password
+    var adminPassword = configuration["DefaultAdmin:Password"];
     var adminExist = await userManager.FindByEmailAsync(adminUser.Email);
 
     if (adminExist == null)
@@ -132,16 +158,16 @@ static async Task CreateRolesAndUsers(RoleManager<ApplicationRole> roleManager, 
     }
 
     // Create default regular user
-    var regularUser = new User
+    var regularUser = new ApplicationUser
     {
-        UserName = "user@domain.com",
-        Email = "user@domain.com",
+        UserName = "regularUser",
+        Email = configuration["DefaultUser:Email"],
         FirstName = "Regular",
         LastName = "User",
         EmailConfirmed = true
     };
 
-    var userPassword = "User@123"; // Use a strong password
+    var userPassword = configuration["DefaultUser:Password"];
     var userExist = await userManager.FindByEmailAsync(regularUser.Email);
 
     if (userExist == null)

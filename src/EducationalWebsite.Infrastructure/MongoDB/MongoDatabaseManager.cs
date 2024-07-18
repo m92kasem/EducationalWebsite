@@ -1,4 +1,5 @@
 using System;
+using EducationalWebsite.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -10,7 +11,7 @@ namespace EducationalWebsite.Infrastructure.MongoDB
     public class MongoDatabaseManager
     {
         private readonly IMongoClient _client;
-        private readonly IMongoDatabase _database;
+        internal readonly IMongoDatabase _database;
         private readonly ILogger<MongoDatabaseManager> _logger;
 
         public MongoDatabaseManager(IOptions<MongoDbConnection> connection, ILogger<MongoDatabaseManager> logger)
@@ -79,6 +80,8 @@ namespace EducationalWebsite.Infrastructure.MongoDB
                 throw;
             }
         }
+
+        public IMongoCollection<ApplicationUser> Users => _database.GetCollection<ApplicationUser>("Users");
 
         // ValidateConfiguration method to validate the connection string and database name
         private void ValidateConfiguration(string connectionString, string databaseName)

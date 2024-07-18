@@ -21,7 +21,7 @@ namespace EducationalWebsite.Infrastructure.Jwt
             _configuration = configuration;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateToken(ApplicationUser user)
         {
             var claims = new[]
             {
