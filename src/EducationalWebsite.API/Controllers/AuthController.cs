@@ -14,24 +14,24 @@ namespace EducationalWebsite.API.Controllers
     {
         private readonly IMediator _mediator;
 
-    public AuthController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+        public AuthController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(CreateUserCommand command)
-    {
-        var user = await _mediator.Send(command);
-        return Ok(user);
-    }
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(CreateUserCommand command)
+        {
+            var user = await _mediator.Send(command);
+            return Ok(user);
+        }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginCommand command)
-    {
-        var authResult = await _mediator.Send(command);
-        return Ok(authResult);
-    }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginCommand command)
+        {
+            var authResult = await _mediator.Send(command);
+            return Ok(authResult);
+        }
         
     }
 }

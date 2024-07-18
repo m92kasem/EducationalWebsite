@@ -11,7 +11,7 @@ using EducationalWebsite.Domain.ValueObjects;
 
 namespace EducationalWebsite.Domain.Entities
 {
-    public class User : MongoIdentityUser<Guid>
+    public class ApplicationUser : MongoIdentityUser<Guid>
     {
         [Required(ErrorMessage = "First Name is required.")]
         [StringLength(15, ErrorMessage = "First Name cannot exceed 15 characters.")]
@@ -22,7 +22,7 @@ namespace EducationalWebsite.Domain.Entities
         public string LastName { get; set; } = default!;
 
         [DataType(DataType.Date)]
-        [CustomValidation(typeof(User), nameof(ValidateDateOfBirth))]
+        [CustomValidation(typeof(ApplicationUser), nameof(ValidateDateOfBirth))]
         public DateTime DateOfBirth { get; set; }
 
         [Required(ErrorMessage = "Gender is required.")]

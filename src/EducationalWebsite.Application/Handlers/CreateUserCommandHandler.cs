@@ -6,47 +6,53 @@ using AutoMapper;
 using EducationalWebsite.Application.Commands;
 using EducationalWebsite.Application.Dtos;
 using EducationalWebsite.Domain.Entities;
+using EducationalWebsite.Domain.Interfaces.Users;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace EducationalWebsite.Application.Handlers
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IUserManagementService _userService;
         private readonly IMapper _mapper;
+        private readonly ILogger<CreateUserCommandHandler> _logger;
 
-        public CreateUserCommandHandler(UserManager<User> userManager, RoleManager<ApplicationRole> roleManager, IMapper mapper)
+        public CreateUserCommandHandler(IUserManagementService userService, IMapper mapper, ILogger<CreateUserCommandHandler> logger)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _mapper = mapper;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        
 
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = _mapper.Map<User>(request);
-            var result = await _userManager.CreateAsync(user, request.Password);
-
-            if (result.Succeeded)
+            var userExists = await _userService.UserExistsAsync(request.Email);
+            if (userExists)
             {
-                var roleExist = await _roleManager.RoleExistsAsync(request.Role);
-                if (!roleExist)
-                {
-                    throw new Exception($"Role {request.Role} does not exist.");
-                }
-
-                var roleResult = await _userManager.AddToRoleAsync(user, request.Role);
-                if (!roleResult.Succeeded)
-                {
-                    throw new Exception(string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-                }
-
+                _logger.LogWarning($"User with email {request.Email} already exists.");
+                IdentityResult.Failed(new IdentityError { Description = $"User with email {request.Email} already exists." });
+            }
+            try
+            {
+                var user = _mapper.Map<ApplicationUser>(request);
+                var result = await _userService.RegisterUserAsync(user, request.Password);
+ 
                 return _mapper.Map<UserDto>(user);
             }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                throw new Exception(ex.Message, ex);
+            }
 
-            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while registering user with email {request.Email}");
+                throw new Exception($"An error occurred while registering user with email {request.Email}: {ex.Message}", ex);
+            }
         }
     }
 }

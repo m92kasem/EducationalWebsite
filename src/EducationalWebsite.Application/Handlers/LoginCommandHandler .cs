@@ -2,43 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using EducationalWebsite.Application.Commands;
 using EducationalWebsite.Application.Dtos;
 using EducationalWebsite.Domain.Entities;
+using EducationalWebsite.Domain.Interfaces.Users;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace EducationalWebsite.Application.Handlers
 {
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
+    public class LoginCommandHandler : IRequestHandler<LoginCommand, (SignInResult, string)>
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
-        private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly ILogger<LoginCommandHandler> _logger;
 
-        public LoginCommandHandler(SignInManager<User> signInManager, UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator)
+        public LoginCommandHandler(IAuthenticationService authenticationService, ILogger<LoginCommandHandler> logger)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _jwtTokenGenerator = jwtTokenGenerator;
+            _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<AuthResult> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<(SignInResult, string)> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-            {
-                throw new Exception("Invalid login attempt.");
-            }
+            var (result, token) = await _authenticationService.LoginUserAsync(request.Email, request.Password);
 
-            var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
             if (!result.Succeeded)
             {
-                throw new Exception("Invalid login attempt.");
+                _logger.LogError($"An error occurred while logging in user with email {request.Email}.");
+                return (result, string.Empty);
             }
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
-            return new AuthResult { Token = token };
+            return (result, token);
+            
         }
     }
 

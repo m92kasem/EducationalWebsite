@@ -13,11 +13,11 @@ namespace EducationalWebsite.Application.MappingProfile
     {
         public MappingProfile()
         {
-            CreateMap<CreateUserCommand, User>()
+            CreateMap<CreateUserCommand, ApplicationUser>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
-            CreateMap<User, UserDto>()
+            CreateMap<ApplicationUser, UserDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.UserGender.ToString()))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address.ToString()));
