@@ -5,6 +5,7 @@ using EducationalWebsite.Domain.Entities;
 using EducationalWebsite.Domain.Interfaces.Users;
 using EducationalWebsite.Infrastructure.Jwt;
 using EducationalWebsite.Infrastructure.MongoDB;
+using EducationalWebsite.Infrastructure.Notification;
 using EducationalWebsite.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -30,6 +31,8 @@ builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
 builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<GmailServiceInitializer>();
 // Add JWT authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -49,6 +52,11 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["GmailSettings:ClientId"]?? throw new Exception("Google ClientId is missing");
+        googleOptions.ClientSecret = builder.Configuration["GmailSettings:ClientSecret"]?? throw new Exception("Google ClientSecret is missing");
+    });
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

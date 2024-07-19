@@ -10,5 +10,7 @@ namespace EducationalWebsite.Domain.Interfaces.Users
     {
       Task<(SignInResult signInResult, string token)> LoginUserAsync(string email, string password);
       Task LogoutUserAsync();  
+      Task<IdentityResult> ResetPasswordAsync(string email, string token, string newPassword);
+      Task GeneratePasswordResetTokenAsync(string email);
     }
 }

@@ -119,6 +119,7 @@ namespace EducationalWebsite.Application.Services
                         _logger.LogError($"An error occurred while adding user to role USER: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
                         return roleResult;
                     }
+                    
                 }
                 else
                 {
