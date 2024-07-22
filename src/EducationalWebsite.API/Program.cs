@@ -3,12 +3,15 @@ using EducationalWebsite.Application;
 using EducationalWebsite.Application.Services;
 using EducationalWebsite.Domain.Entities;
 using EducationalWebsite.Domain.Interfaces.Users;
+using EducationalWebsite.Infrastructure.Authentication;
+using EducationalWebsite.Infrastructure.Identity;
 using EducationalWebsite.Infrastructure.Jwt;
 using EducationalWebsite.Infrastructure.MongoDB;
+using EducationalWebsite.Infrastructure.Notification;
 using EducationalWebsite.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
+using Google.Apis.Gmail.v1;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -19,36 +22,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MongoDbConnection>(builder.Configuration.GetSection("MongoDbConnection"));
 
 // Configure MongoDB Identity
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>(
-        builder.Configuration["MongoDbConnection:ConnectionString"], 
-        builder.Configuration["MongoDbConnection:DatabaseName"])
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentityExtensions(builder.Configuration);
+
+
+builder.Services.AddJwtAuthentication(builder.Configuration); // Add JWT authentication
+builder.Services.AddGoogleAuthentication(builder.Configuration); // Add Google authentication
 builder.Services.AddSingleton<MongoDatabaseManager>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
 builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
-// Add JWT authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<GmailServiceInitializer>();
+builder.Services.AddHttpContextAccessor();
+
+
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -86,10 +75,8 @@ builder.Services.AddSwaggerGen(options =>
     }});
 });
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -103,7 +90,6 @@ app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "EducationalWebsite API v1"));
 app.MapControllers();
 
-
 // Create default roles and users
 using (var scope = app.Services.CreateScope())
 {
@@ -113,13 +99,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
-
-
-
-
-
-
 
 static async Task CreateRolesAndUsers(RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
 {
