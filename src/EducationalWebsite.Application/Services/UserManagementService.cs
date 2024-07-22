@@ -100,41 +100,7 @@ namespace EducationalWebsite.Application.Services
             }
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(ApplicationUser user, string password)
-        {
-            try
-            {
-                var createResult = await _userManager.CreateAsync(user, password).ConfigureAwait(false);
-                if (createResult.Succeeded)
-                {
-                    _logger.LogInformation($"User with email {user.Email} registered successfully.");
-
-                    var roleResult = await _userManager.AddToRoleAsync(user, "USER").ConfigureAwait(false);
-                    if (roleResult.Succeeded)
-                    {
-                        _logger.LogInformation($"User with email {user.Email} added to role USER successfully.");
-                    }
-                    else
-                    {
-                        _logger.LogError($"An error occurred while adding user to role USER: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
-                        return roleResult;
-                    }
-                    
-                }
-                else
-                {
-                    _logger.LogError($"An error occurred while registering user with email {user.Email}: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
-                    return createResult;
-                }
-
-                return createResult;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error registering user with email {Email}", user.Email);
-                return IdentityResult.Failed(new IdentityError { Description = "An unexpected error occurred." });
-            }
-        }
+        
 
         public async Task<IdentityResult> UpdateUserAsync(Guid userId, ApplicationUser user)
         {
@@ -163,9 +129,6 @@ namespace EducationalWebsite.Application.Services
             }
         }
 
-        public async Task<bool> UserExistsAsync(string email)
-        {
-            return await _userManager.FindByEmailAsync(email).ConfigureAwait(false) != null;
-        }
+        
     }
 }
