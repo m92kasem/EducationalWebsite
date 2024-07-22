@@ -15,13 +15,13 @@ namespace EducationalWebsite.Application.Handlers
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
     {
-        private readonly IUserManagementService _userService;
+        private readonly IAuthenticationService _userAuService;
         private readonly IMapper _mapper;
         private readonly ILogger<CreateUserCommandHandler> _logger;
 
-        public CreateUserCommandHandler(IUserManagementService userService, IMapper mapper, ILogger<CreateUserCommandHandler> logger)
+        public CreateUserCommandHandler(IAuthenticationService authenticationService, IMapper mapper, ILogger<CreateUserCommandHandler> logger)
         {
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userAuService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -29,7 +29,7 @@ namespace EducationalWebsite.Application.Handlers
 
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var userExists = await _userService.UserExistsAsync(request.Email);
+            var userExists = await _userAuService.UserExistsAsync(request.Email);
             if (userExists)
             {
                 _logger.LogWarning($"User with email {request.Email} already exists.");
@@ -38,7 +38,8 @@ namespace EducationalWebsite.Application.Handlers
             try
             {
                 var user = _mapper.Map<ApplicationUser>(request);
-                var result = await _userService.RegisterUserAsync(user, request.Password);
+                user.EmailConfirmed = true;
+                var result = await _userAuService.RegisterUserAsync(user, request.Password);
  
                 return _mapper.Map<UserDto>(user);
             }
