@@ -31,6 +31,50 @@ namespace EducationalWebsite.Application.Services
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
         }
 
+
+        public async Task<IdentityResult> RegisterUserAsync(ApplicationUser user, string password)
+        {
+            try
+            {
+                var createResult = await _userManager.CreateAsync(user, password).ConfigureAwait(false);
+                if (createResult.Succeeded)
+                {
+                    _logger.LogInformation($"User with email {user.Email} registered successfully.");
+
+                    var roleResult = await _userManager.AddToRoleAsync(user, "USER").ConfigureAwait(false);
+                    if (roleResult.Succeeded)
+                    {
+                        _logger.LogInformation($"User with email {user.Email} added to role USER successfully.");
+                    }
+                    else
+                    {
+                        _logger.LogError($"An error occurred while adding user to role USER: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                        return roleResult;
+                    }
+                    var message = $"Welcome to the Educational Website! Your account has been created successfully. Please login to access your account.";
+                    await _emailSender.SendEmailAsync(user.Email, "Welcome to the Educational Website!", message);
+                    
+                }
+                else
+                {
+                    _logger.LogError($"An error occurred while registering user with email {user.Email}: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
+                    return createResult;
+                }
+
+                return createResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error registering user with email {Email}", user.Email);
+                return IdentityResult.Failed(new IdentityError { Description = "An unexpected error occurred." });
+            }
+        }
+
+        public async Task<bool> UserExistsAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email).ConfigureAwait(false) != null;
+        }
+
         public async Task<(SignInResult signInResult, string token)> LoginUserAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
