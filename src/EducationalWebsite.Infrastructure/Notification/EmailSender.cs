@@ -18,11 +18,11 @@ namespace EducationalWebsite.Infrastructure.Notification
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var gmailService = await _gmailServiceInitializer.InitializeAsync().ConfigureAwait(false);
+            var gmailService = await _gmailServiceInitializer.InitializeAsync();
 
             var mimeMessage = new MimeMessage();
-            mimeMessage.From.Add(new MailboxAddress("Educational Website", "aaa@gg.com"));
-            mimeMessage.To.Add(new MailboxAddress(email, email));
+            mimeMessage.From.Add(new MailboxAddress("devmsk", "ayberk.mh@gmail.com"));
+            mimeMessage.To.Add(new MailboxAddress("", email));
             mimeMessage.Subject = subject;
             mimeMessage.Body = new TextPart("html") { Text = message };
             
