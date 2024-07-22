@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using EducationalWebsite.Application.Commands;
 using EducationalWebsite.Application.Commands.Auth;
+using EducationalWebsite.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EducationalWebsite.API.Controllers
@@ -15,11 +20,16 @@ namespace EducationalWebsite.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<AuthController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AuthController(IMediator mediator, ILogger<AuthController> logger)
+        public AuthController(IMediator mediator, ILogger<AuthController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _mediator = mediator;
             _logger = logger;
+            _userManager = userManager;
+            _signInManager = signInManager;
+
         }
 
 
@@ -71,5 +81,47 @@ namespace EducationalWebsite.API.Controllers
                 return StatusCode(500, new { status = "error", message = "An error occurred while processing reset password request." });
             }
         }
+
+        [HttpGet("login-google")]
+        public IActionResult LoginGoogle()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+         [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return BadRequest(); // Handle the error as you wish
+
+            var email = result.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true
+                };
+
+                var identityResult = await _userManager.CreateAsync(user);
+                if (identityResult.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "USER");
+                }
+                else
+                {
+                    return BadRequest(identityResult.Errors);
+                }
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return Redirect("~/"); // Redirect to your front-end application
+        }
+
     }
 }
