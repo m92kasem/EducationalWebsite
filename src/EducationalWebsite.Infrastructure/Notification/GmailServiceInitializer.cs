@@ -42,7 +42,10 @@ namespace EducationalWebsite.Infrastructure.Notification
             });
 
             var credential = new UserCredential(flow, "user", token);
-
+            if (credential.Token.IsStale)
+            {
+                await credential.RefreshTokenAsync(default).ConfigureAwait(false);
+            }
             return await Task.FromResult(new GmailService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
