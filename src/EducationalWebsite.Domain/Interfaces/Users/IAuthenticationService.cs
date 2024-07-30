@@ -10,6 +10,7 @@ namespace EducationalWebsite.Domain.Interfaces.Users
     public interface IAuthenticationService
     {
       Task<IdentityResult> RegisterUserAsync(ApplicationUser user, string password);
+      Task <IdentityResult> ConfirmEmailAsync(string email, string token);
       Task<(SignInResult signInResult, string token)> LoginUserAsync(string email, string password);
       Task LogoutUserAsync();  
       Task<IdentityResult> ResetPasswordAsync(string email, string token, string newPassword);

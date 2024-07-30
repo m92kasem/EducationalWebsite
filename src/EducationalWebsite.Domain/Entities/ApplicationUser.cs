@@ -37,6 +37,7 @@ namespace EducationalWebsite.Domain.Entities
         public string MobileNumber { get; set; } = default!;
 
         public bool IsDeleted { get; set; }
+        public bool IsEmailConfirmed { get; set; }
 
         public static ValidationResult? ValidateDateOfBirth(DateTime dateOfBirth, ValidationContext context)
         {

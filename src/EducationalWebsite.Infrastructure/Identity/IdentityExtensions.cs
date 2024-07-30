@@ -16,6 +16,7 @@ namespace EducationalWebsite.Infrastructure.Identity
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 // Configure identity options here
+                options.SignIn.RequireConfirmedEmail = true; // Requires email confirmation
                 options.Password.RequireDigit = true;  // Requires a digit
                 options.Password.RequiredLength = 8; // Minimum password length
                 options.Password.RequireNonAlphanumeric = false; // Requires a non-alphanumeric character
