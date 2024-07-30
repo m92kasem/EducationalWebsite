@@ -18,6 +18,5 @@ namespace EducationalWebsite.Application.Commands
         public string Gender { get; set; }
         public Address Address { get; set; }
         public string MobileNumber { get; set; }
-        public string Role { get; set; }
     }
 }

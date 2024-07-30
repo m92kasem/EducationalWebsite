@@ -38,7 +38,7 @@ namespace EducationalWebsite.Application.Handlers
             try
             {
                 var user = _mapper.Map<ApplicationUser>(request);
-                user.EmailConfirmed = true;
+                user.EmailConfirmed = false;
                 var result = await _userAuService.RegisterUserAsync(user, request.Password);
  
                 return _mapper.Map<UserDto>(user);

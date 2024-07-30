@@ -40,6 +40,10 @@ namespace EducationalWebsite.Application.Services
                 if (createResult.Succeeded)
                 {
                     _logger.LogInformation($"User with email {user.Email} registered successfully.");
+                    var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = $"https://localhost:5001/confirm-email?email={user.Email}&token={emailConfirmationToken}";
+                    var confMessage = $"Welcome to the Educational Website! Please confirm your account by clicking <a href='{callbackUrl}'>here</a> or by copying the following link: {callbackUrl} into your browser. This link will expire in 24 hours.";
+                    await _emailSender.SendEmailAsync(user.Email, "Confirm your email", confMessage);
 
                     var roleResult = await _userManager.AddToRoleAsync(user, "USER").ConfigureAwait(false);
                     if (roleResult.Succeeded)
@@ -51,8 +55,6 @@ namespace EducationalWebsite.Application.Services
                         _logger.LogError($"An error occurred while adding user to role USER: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
                         return roleResult;
                     }
-                    var message = $"Welcome to the Educational Website! Your account has been created successfully. Please login to access your account.";
-                    await _emailSender.SendEmailAsync(user.Email, "Welcome to the Educational Website!", message);
                     
                 }
                 else
@@ -81,6 +83,11 @@ namespace EducationalWebsite.Application.Services
             if (user == null)
             {
                 _logger.LogError($"User with email {email} not found.");
+                return (SignInResult.Failed, string.Empty);
+            }
+            if (!user.EmailConfirmed)
+            {
+                _logger.LogError($"User with email {email} has not confirmed their email.");
                 return (SignInResult.Failed, string.Empty);
             }
 
@@ -154,6 +161,36 @@ namespace EducationalWebsite.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while generating password reset token for user with email {email}");
+                throw;
+            }
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogError($"User with email {email} not found.");
+                return IdentityResult.Failed(new IdentityError { Description = $"User with email {email} not found." });
+            }
+
+            try
+            {
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation($"Email confirmed for user with email {email}.");
+                    return result;
+                }
+                else
+                {
+                    _logger.LogError($"An error occurred while confirming email for user with email {email}.");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while confirming email for user with email {email}");
                 throw;
             }
         }

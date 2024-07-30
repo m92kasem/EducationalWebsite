@@ -45,7 +45,11 @@ namespace EducationalWebsite.API.Controllers
         {
             var authResult = await _mediator.Send(command);
             Console.WriteLine(authResult);
-            return Ok(authResult);
+            if (authResult.Item1.Succeeded)
+            {
+                return Ok(new { status = "success", message = "Login successful.", token = authResult.Item2 });
+            }
+            return BadRequest(new { status = "error", message = "Login failed", errors = authResult.Item1.ToString() });
         }
         
         [HttpPost("forgot-password")]
@@ -121,6 +125,25 @@ namespace EducationalWebsite.API.Controllers
 
             await _signInManager.SignInAsync(user, isPersistent: false);
             return Redirect("~/"); // Redirect to your front-end application
+        }
+
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                if (result.Succeeded)
+                {
+                    return Ok(new { status = "success", message = "Email confirmed successfully." });
+                }
+                return BadRequest(new { status = "error", message = "Email confirmation failed", errors = result.Errors });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An error occurred while processing email confirmation request.");
+                return StatusCode(500, new { status = "error", message = "An error occurred while processing email confirmation request." });
+            }
         }
 
     }
